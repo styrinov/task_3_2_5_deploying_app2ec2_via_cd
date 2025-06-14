@@ -1,32 +1,26 @@
-name: Build and Push to ECR
+name: Build and Push to Public ECR
 
-# on:
-#   push:
-#     branches:
-#       - 'feature/**'
-#     tags:
-#       - 'v*.*.*'
-#   pull_request:
-#     branches:
-#       - master
-      
 on:
   push:
+    branches:
+      - 'feature/**'
+    tags:
+      - 'v*.*.*'
+  pull_request:
     branches:
       - master
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}      
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     env:
-      ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-      IMAGE_URI: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}
+      IMAGE_NAME: sergio1981/my-app
+      IMAGE_URI: public.ecr.aws/g6z5u7d0/sergio1981/my-app
 
     steps:
       - name: Checkout code
@@ -37,35 +31,37 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: us-east-1  # Required for public ECR
 
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-
-
-      - name: Build and Push Backend
+      - name: Log in to Amazon ECR Public
         run: |
-          echo "Building image..."
-          docker build -t $IMAGE_URI:${{ github.sha }} .
+          aws ecr-public get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin public.ecr.aws/g6z5u7d0
 
+      - name: Build and Push Image
+        run: |
+          docker build -t $IMAGE_NAME .
+
+          # Tag with commit SHA
+          docker tag $IMAGE_NAME $IMAGE_URI:${{ github.sha }}
+          docker push $IMAGE_URI:${{ github.sha }}
+
+          # Tag as latest
+          docker tag $IMAGE_NAME $IMAGE_URI:latest
+          docker push $IMAGE_URI:latest
+
+          # Tag as branch (e.g. master)
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            docker tag $IMAGE_URI:${{ github.sha }} $IMAGE_URI:master
+            docker tag $IMAGE_NAME $IMAGE_URI:master
             docker push $IMAGE_URI:master
-          elif [[ "${{ github.ref }}" == "refs/heads/feature/**" ]]; then
-            docker tag $IMAGE_URI:${{ github.sha }} $IMAGE_URI:dev
-            docker push $IMAGE_URI:dev
           fi
 
           if [[ "${{ github.ref }}" =~ refs/tags/v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
             TAG=${GITHUB_REF#refs/tags/}
-            docker tag $IMAGE_URI:${{ github.sha }} $IMAGE_REPO-backend:$TAG
+            docker tag $IMAGE_NAME $IMAGE_URI:$TAG
             docker push $IMAGE_URI:$TAG
           fi
-
-          docker push $IMAGE_URI:${{ github.sha }}  
-
+         
   notify_failure:
     name: Notify Failure on Telegram
     if: failure()
@@ -77,4 +73,4 @@ jobs:
           MESSAGE="🚨 GitHub Action Job FAILED\nRepo: ${{ github.repository }}\nBranch: ${{ github.ref }}\nCommit: ${{ github.sha }}\nJob: ${{ github.job }}"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
             -d chat_id=$TELEGRAM_CHAT_ID \
-            -d text="$MESSAGE"          
+            -d text="$MESSAGE"
