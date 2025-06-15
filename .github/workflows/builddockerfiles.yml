@@ -84,7 +84,7 @@ jobs:
       - name: SCP to EC2
         run: |
           scp -i ec2_key.pem -o StrictHostKeyChecking=no docker/docker-compose.yml \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/projects/docker-compose.yml
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/projects/task_3_2_5_deploying_app2ec2_via_cd/docker/docker-compose.yml
         continue-on-error: true
                 
          
