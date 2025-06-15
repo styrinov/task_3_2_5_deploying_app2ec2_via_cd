@@ -40,29 +40,29 @@ jobs:
           aws ecr-public get-login-password --region us-east-1 \
             | docker login --username AWS --password-stdin public.ecr.aws/g6z5u7d0           
 
-      # - name: Build and Push Image          
-      #   run: |
-      #     docker build -t $IMAGE_NAME .
+      - name: Build and Push Image          
+        run: |
+          docker build -t $IMAGE_NAME .
 
-      #     # Tag with commit SHA
-      #     docker tag $IMAGE_NAME $IMAGE_URI:${{ github.sha }}
-      #     docker push $IMAGE_URI:${{ github.sha }}
+          # Tag with commit SHA
+          docker tag $IMAGE_NAME $IMAGE_URI:${{ github.sha }}
+          docker push $IMAGE_URI:${{ github.sha }}
 
-      #     # Tag as latest
-      #     docker tag $IMAGE_NAME $IMAGE_URI:latest
-      #     docker push $IMAGE_URI:latest
+          # Tag as latest
+          docker tag $IMAGE_NAME $IMAGE_URI:latest
+          docker push $IMAGE_URI:latest
 
-      #     # Tag as branch (e.g. master)
-      #     if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-      #       docker tag $IMAGE_NAME $IMAGE_URI:master
-      #       docker push $IMAGE_URI:master
-      #     fi
+          # Tag as branch (e.g. master)
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            docker tag $IMAGE_NAME $IMAGE_URI:master
+            docker push $IMAGE_URI:master
+          fi
 
-      #     if [[ "${{ github.ref }}" =~ refs/tags/v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-      #       TAG=${GITHUB_REF#refs/tags/}
-      #       docker tag $IMAGE_NAME $IMAGE_URI:$TAG
-      #       docker push $IMAGE_URI:$TAG
-      #     fi
+          if [[ "${{ github.ref }}" =~ refs/tags/v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            docker tag $IMAGE_NAME $IMAGE_URI:$TAG
+            docker push $IMAGE_URI:$TAG
+          fi
   
   deploy-to-ec2:
     name: Deploy to EC2 on master
