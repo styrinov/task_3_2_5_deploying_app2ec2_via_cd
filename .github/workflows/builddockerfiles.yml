@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: sergio1981/my-app
-      IMAGE_URI: public.ecr.aws/g6z5u7d0/sergio1981/my-app
+      IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+      IMAGE_URI: ${{ vars.IMAGE_URI }}
 
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
       - name: Log in to Amazon ECR Public
         run: |
           aws ecr-public get-login-password --region us-east-1 \
-            | docker login --username AWS --password-stdin public.ecr.aws/g6z5u7d0
+            | docker login --username AWS --password-stdin public.ecr.aws/g6z5u7d0           
 
       # - name: Build and Push Image          
       #   run: |
