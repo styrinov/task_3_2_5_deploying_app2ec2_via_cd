@@ -8,14 +8,14 @@ on:
       - 'v*.*.*'
     paths-ignore:
       - 'docker/**'
-      - '.github/workflows/**''
+      - '.github/workflows/**'
       - '.env'
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'docker/**'
-      - '.github/workflows/**''
+      - '.github/workflows/**'
       - '.env'
 
 env:
