@@ -8,14 +8,13 @@ on:
         - 'v*.*.*'
       paths:
         - 'docker/**'
-        - 'env/**'
+        - '.env'
     pull_request:
       branches:
         - master
       paths:
         - 'docker/**'
-        - 'env/**'
-  
+        - '.env' 
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

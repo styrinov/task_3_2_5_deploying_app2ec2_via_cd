@@ -9,14 +9,14 @@ on:
     paths-ignore:
       - 'docker/**'
       - '.github/workflows/builddockerfiles.yml'
-      - 'env/**'
+      - '.env'
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'docker/**'
       - '.github/workflows/builddockerfiles.yml'
-      - 'env/**'
+      - '.env'
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
