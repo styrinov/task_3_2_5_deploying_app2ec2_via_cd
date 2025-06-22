@@ -9,12 +9,14 @@ on:
       paths:
         - 'docker/**'
         - '.env'
+        - '.github/workflows/**'
     pull_request:
       branches:
         - master
       paths:
         - 'docker/**'
         - '.env' 
+        - '.github/workflows/**'
 
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
