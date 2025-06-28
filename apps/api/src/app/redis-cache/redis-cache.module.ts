@@ -15,19 +15,20 @@ import { RedisCacheService } from './redis-cache.service';
       imports: [ConfigurationModule],
       inject: [ConfigurationService],
       useFactory: async (configurationService: ConfigurationService) => {
-        const redisPassword = encodeURIComponent(
-          configurationService.get('REDIS_PASSWORD')
-        );
+        const redisUser = configurationService.get('REDIS_USER');
+        const redisPassword = encodeURIComponent(configurationService.get('REDIS_PASSWORD'));
+        const redisHost = configurationService.get('REDIS_HOST');
+        const redisPort = configurationService.get('REDIS_PORT');
 
         return {
           store: redisStore,
           ttl: configurationService.get('CACHE_TTL'),
-          url: `redis://${redisPassword ? `:${redisPassword}` : ''}@${configurationService.get('REDIS_HOST')}:${configurationService.get('REDIS_PORT')}/${configurationService.get('REDIS_DB')}`
+          url: `rediss://${redisUser}:${redisPassword}@${redisHost}:${redisPort}`,
         } as RedisClientOptions;
-      }
+      },
     }),
-    ConfigurationModule
+    ConfigurationModule,
   ],
-  providers: [RedisCacheService]
+  providers: [RedisCacheService],
 })
 export class RedisCacheModule {}
