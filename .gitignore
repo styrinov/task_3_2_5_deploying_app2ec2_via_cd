@@ -26,7 +26,7 @@ npm-debug.log
 # misc
 /.angular/cache
 .env
-.env.prod
+.env.*
 .nx/cache
 .nx/workspace-data
 /.sass-cache
