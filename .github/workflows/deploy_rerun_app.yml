@@ -39,21 +39,37 @@ jobs:
       - name: Append dummy comment to trigger watcher
         run: echo "# updated at $(date)" >> docker/docker-compose.yml
 
-      - name: SCP files to EC2
+      - name: SCP docker compose file to EC2
         run: |
           scp -i ec2_key.pem -o StrictHostKeyChecking=no docker/docker-compose.yml \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ vars.EC2_PATH_PROJECT }}/docker/docker-compose.yml
 
-          scp -i ec2_key.pem -o StrictHostKeyChecking=no .env \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ vars.EC2_PATH_PROJECT }}/.env
-        continue-on-error: true
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          ACCESS_TOKEN_SALT=${{ secrets.ACCESS_TOKEN_SALT }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          COMPOSE_PROJECT_NAME=${{ secrets.COMPOSE_PROJECT_NAME }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/${{ secrets.POSTGRES_DB }}?connect_timeout=300&sslmode=require
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_USER=${{ secrets.REDIS_USER }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          EOF
+
+      - name: Copy .env to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i ec2_key.pem .env ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ vars.EC2_PATH_PROJECT }}/.env   
+
       - name: Run remote deploy script
         run: |
           ssh -i ec2_key.pem -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'bash /home/ubuntu/projects/deploy.sh'  
-        continue-on-error: true    
-                
+            'bash /home/ubuntu/projects/deploy.sh'                  
          
   notify_failure:
     name: Notify Failure on Telegram
