@@ -4,7 +4,7 @@
 /out-tsc
 /tmp
 
-# dependencies
+# dependencies    
 /node_modules
 npm-debug.log
 
