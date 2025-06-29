@@ -110,7 +110,7 @@ jobs:
           POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:5432/${{ secrets.POSTGRES_DB }}?connect_timeout=300&sslmode=require
+          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/${{ secrets.POSTGRES_DB }}?connect_timeout=300&sslmode=require
           REDIS_HOST=${{ secrets.REDIS_HOST }}
           REDIS_USER=${{ secrets.REDIS_USER }}
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
